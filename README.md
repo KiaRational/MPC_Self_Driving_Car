@@ -85,42 +85,22 @@ MUJOCO_GL=osmesa python mpc/record_mpc_video.py --laps 2 # CPU only
 ## 🧮 How the controller works
 
 ```mermaid
-flowchart TD
-    TRACK[("🗺️ track_path.csv<br/>centerline from artwork")]:::data
-    YAML[("⚙️ mpc_car.yaml<br/>limits · weights · horizon")]:::data
-
-    subgraph MPC["🧠 MPC thread — re-solves every 0.15 s"]
-        direction TB
-        S["Read car state<br/>[x, y, v, ψ]"] --> D["Delay compensation<br/>predict state after solve latency"]
-        D --> REF["Reference window<br/>next 3 s of the centerline at 0.6 m/s"]
-        REF --> DET{"Obstacle inside<br/>100° / 3 m sensor wedge?"}
-        DET -- yes --> HP["Closest obstacle → ego frame<br/>half-plane constraint + slack"]
-        DET -- no --> QP
-        HP --> QP["Linearise bicycle model<br/>solve QP · CVXPY + Clarabel"]
-        QP --> OK{"Solved?"}
-        OK -- yes --> U["First control of horizon<br/>[a, δ] + predicted path"]
-        OK -- no --> FB["Fallback: library decel,<br/>hold last steering angle"]
-        FB --> U
-    end
-
-    subgraph PHYS["⚡ Physics loop — 1 kHz MuJoCo"]
-        direction TB
-        AEB{"AEB check every 20 ms<br/>clearance &lt; v²/2a + pad ?"}
-        AEB -- yes --> BRK["Brake hard,<br/>floor at 0.10 m/s creep"]
-        AEB -- no --> INT["Integrate a → wheel speed"]
-        BRK --> ACK
-        INT --> ACK["Ackermann trapezoid<br/>δ → left / right knuckle angles"]
-        ACK --> STEP["mj_step: tyres, contact, slip<br/>+ move obstacles"]
-    end
+flowchart LR
+    TRACK["track_path.csv<br/>(centerline from artwork)"]
+    STATE["state<br/>[x, y, v, ψ]"]
+    REF["reference window"]
+    LIN["linearise<br/>bicycle model"]
+    QP["QP<br/>(CVXPY)"]
+    OBS["nearest obstacle in FOV<br/>(half-plane, slack)"]
+    U["first control<br/>[accel, steer]"]
+    AEB["AEB: brake if<br/>clearance &lt; v²/2a + pad"]
+    ACK["Ackermann trapezoid<br/>+ rear wheel ω"]
+    SIM["MuJoCo physics<br/>(tyres, slip)"]
 
     TRACK --> REF
-    YAML --> QP
-    U --> AEB
-    STEP -- "new state" --> S
-
-    classDef data fill:#1f2937,stroke:#60a5fa,color:#e5e7eb
-    style MPC fill:#0b3b2e22,stroke:#10b981
-    style PHYS fill:#3b0b0b22,stroke:#ef4444
+    STATE --> REF --> LIN --> QP --> U --> ACK --> SIM --> STATE
+    OBS --> QP
+    U --> AEB --> ACK
 ```
 
 **State** `x = [x, y, v, ψ]`, **input** `u = [a, δ]`, kinematic bicycle with wheelbase *L* = 0.26 m:
