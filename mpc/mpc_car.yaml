@@ -1,0 +1,30 @@
+# MPC config for the AURIGA car (see demo_car.py for the same wheelbase/track/
+# steer-limit numbers). Same shape as mpc_python/mpc_python/config/mpc.yaml -
+# loaded straight by that package's MPC class.
+model:
+  vehicle:
+    wheelbase: 0.260   # WB in demo_car.py (m)
+    width: 0.230       # track (0.196) + wheel width, outer edge to outer edge (m)
+
+    max_speed: 1.2     # m/s - conservative vs. the 2.88 m/s actuator ceiling
+    max_acc: 0.8        # m/s^2
+    max_d_acc: 1.0       # m/s^3
+    max_steer: 0.55     # STEER_LIM in demo_car.py (rad)
+    max_d_steer: 1.0     # rad/s
+
+controller:
+  prediction:
+    horizon_time: 3.0
+    timestep: 0.15
+
+  # State Vectors mapping:   [Along-track error, Cross-track error, Velocity error, Heading error]
+  # Control Vectors mapping: [Acceleration, Steering Angle]
+  weights:
+    state_cost: [8, 45, 25, 25]
+    final_state_cost: [8, 45, 25, 25]
+    input_cost: [10, 10]
+    input_rate_cost: [10, 10]
+
+  obstacle:
+    safety_margin: 0.08   # m, on top of vehicle half-width
+    slack_penalty: 100000

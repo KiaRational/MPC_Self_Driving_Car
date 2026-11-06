@@ -1,0 +1,25 @@
+<mujoco model="auriga_car_mpc_scene">
+  <!-- Adds MPC path-following obstacles on top of scene_car.xml. Every
+       obstacle (static AND moving) is a mocap body: mpc_car.py drives their
+       pos each step from the same path-relative [distance, speed,
+       lateral_offset] model as mpc_python's update_path_obstacles(), so
+       "static" is just speed=0. Real start positions come from the
+       extracted track_path.csv at runtime - the pos below is just a parked
+       placeholder, out of the way, before the first mocap update lands. -->
+  <include file="scene_car.xml"/>
+
+  <worldbody>
+    <body name="obstacle_static_0" mocap="true" pos="0 0 -1">
+      <geom type="cylinder" size="0.16 0.10" rgba="0.95 0.55 0.10 0.9" contype="0" conaffinity="0"/>
+    </body>
+    <body name="obstacle_static_1" mocap="true" pos="0 0 -1">
+      <geom type="cylinder" size="0.16 0.10" rgba="0.95 0.55 0.10 0.9" contype="0" conaffinity="0"/>
+    </body>
+    <body name="obstacle_moving_0" mocap="true" pos="0 0 -1">
+      <geom type="cylinder" size="0.14 0.10" rgba="0.90 0.15 0.35 0.9" contype="0" conaffinity="0"/>
+    </body>
+    <body name="obstacle_moving_1" mocap="true" pos="0 0 -1">
+      <geom type="cylinder" size="0.14 0.10" rgba="0.90 0.15 0.35 0.9" contype="0" conaffinity="0"/>
+    </body>
+  </worldbody>
+</mujoco>

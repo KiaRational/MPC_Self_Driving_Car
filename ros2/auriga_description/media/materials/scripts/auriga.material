@@ -1,0 +1,24 @@
+// Gazebo Classic material script for the AURIGA branding plate.
+// Install as: <pkg>/media/materials/{scripts,textures}/ and make sure the
+// package share dir is on GAZEBO_RESOURCE_PATH, e.g. in your launch file:
+//   os.environ['GAZEBO_RESOURCE_PATH'] += ':' + get_package_share_directory('auriga_description')
+
+material Auriga/Label
+{
+  technique
+  {
+    pass
+    {
+      ambient  0.45 0.45 0.45 1.0
+      diffuse  1.00 1.00 1.00 1.0
+      specular 0.15 0.15 0.15 1.0 12.0
+
+      texture_unit
+      {
+        texture auriga_label.png
+        filtering anisotropic
+        max_anisotropy 8
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+mujoco>=3.1
+cvxpy>=1.5
+clarabel
+scipy
+numpy
+pyyaml
+# recording only (mpc/record_mpc_video.py)
+imageio
+imageio-ffmpeg
+pillow

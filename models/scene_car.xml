@@ -1,0 +1,45 @@
+<mujoco model="auriga_car_scene">
+  <!-- Wraps auriga_car.xml with the figure-8 track ground, boundary wall,
+       sky and lighting. Regenerate the robot with gen_mjcf.py; this file is
+       hand-written and should be edited directly. -->
+  <include file="auriga_car.xml"/>
+
+  <statistic center="0 0 0.1" extent="7.0"/>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.42 0.55 0.72" rgb2="0.04 0.06 0.10"
+              width="512" height="512"/>
+    <texture name="track_tex" type="2d" file="track.png"/>
+    <material name="track_mat" texture="track_tex" texrepeat="1 1" texuniform="false"
+              specular="0.15" shininess="0.1" reflectance="0.02"/>
+    <material name="curb" rgba="0.62 0.14 0.14 1" specular="0.2" shininess="0.15"/>
+  </asset>
+
+  <worldbody>
+    <!-- castshadow off: a 4096-res shadow map re-rendered by the main viewer
+         AND the dashboard's offscreen camera every frame was the single
+         biggest cost in the "why is this so slow" slowdown -->
+    <light name="sun" pos="0 0 4" dir="-0.25 -0.15 -1" directional="true"
+           diffuse="0.85 0.85 0.8" specular="0.3 0.3 0.3" castshadow="false"/>
+    <light name="fill" pos="-2 2 2.5" dir="0.4 -0.4 -1" directional="true"
+           diffuse="0.3 0.3 0.32" castshadow="false"/>
+
+    <!-- track surface: half-extents matched to the artboard's 2048x910 (2.2505:1)
+         aspect ratio (2x the original 3.0x1.333 field) so the texture maps
+         onto the plane with no stretch -->
+    <geom name="track_floor" type="plane" size="6.0 2.6667 0.05" pos="0 0 0"
+          material="track_mat" friction="1.0 0.005 0.0001"/>
+
+    <!-- boundary wall, just outside the drawn road's OUTER edge (measured
+         off the artwork's own white pixels: x in [-5.74,5.74], y in
+         [-2.60,2.60] - not the centerline, which sits ~0.5m inside that).
+         Keeps the car on the playfield and gives the lidar/rangefinders
+         something real to see. Taller than lidar_link's 0.153m mount height
+         (base_link z=0.048 + lidar offset 0.105), or the horizontal lidar
+         rays sail clean over it. -->
+    <geom name="wall_north" type="box" size="5.96 0.02 0.14" pos="0 2.65 0.14" material="curb"/>
+    <geom name="wall_south" type="box" size="5.96 0.02 0.14" pos="0 -2.65 0.14" material="curb"/>
+    <geom name="wall_east"  type="box" size="0.02 2.68 0.14" pos="5.94 0 0.14" material="curb"/>
+    <geom name="wall_west"  type="box" size="0.02 2.68 0.14" pos="-5.94 0 0.14" material="curb"/>
+  </worldbody>
+</mujoco>

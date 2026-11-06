@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+MUJOCO_LOG.TXT
+*.log
+.venv/
+venv/
+.ipynb_checkpoints/
